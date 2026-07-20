@@ -2,16 +2,28 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
-# Load pretrained EfficientNet-B0
-model = models.efficientnet_b0(
-    weights=models.EfficientNet_B0_Weights.DEFAULT
+# Select device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Create ResNet18 architecture
+model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+
+# Replace final layer (2 classes: Human and Generated)
+num_features = model.fc.in_features
+model.fc = nn.Linear(num_features, 2)
+
+# Load trained weights
+model.load_state_dict(
+    torch.load(
+        "models/resnet18_baseline-50% (1).pth",
+        map_location=device
+    )
 )
 
-# Replace the classifier for 2 classes
-num_features = model.classifier[1].in_features
-model.classifier[1] = nn.Linear(num_features, 2)
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Move model to device
 model = model.to(device)
 
-print(model)
+# Set model to evaluation mode
+model.eval()
+
+print("✅ ResNet18 model loaded successfully!")
