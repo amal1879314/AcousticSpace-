@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from predict import predict_audio
 
 app = FastAPI(
     title="AcousticSpace API",
@@ -20,7 +21,6 @@ def health():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    return {
-        "filename": file.filename,
-        "message": "Model not loaded yet."
-    }
+    result = predict_audio(file)
+
+    return result
